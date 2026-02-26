@@ -1,0 +1,82 @@
+name: Control Diario de Tareo
+
+on:
+  schedule:
+    # 7:00 AM Peru = 12:00 UTC (Lunes a Sabado)
+    # Nota: cron no soporta excluir domingos directamente,
+    # el script ya maneja la logica de dias (lunes revisa sabado, etc.)
+    - cron: '0 12 * * 1-6'
+
+  # Permite ejecutar manualmente desde GitHub
+  workflow_dispatch:
+    inputs:
+      fecha:
+        description: 'Fecha del tareo a revisar (YYYY-MM-DD). Dejar vacio para automatico.'
+        required: false
+        default: ''
+        type: string
+      no_notificar:
+        description: 'No enviar llamados de atencion'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  control-tareo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Restaurar credenciales Google
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          GOOGLE_TOKEN: ${{ secrets.GOOGLE_TOKEN }}
+        run: |
+          echo "$GOOGLE_CREDENTIALS" > credentials.json
+          echo "$GOOGLE_TOKEN" > token.json
+
+      - name: Restaurar configuracion de obras
+        env:
+          OBRAS_CONFIG: ${{ secrets.OBRAS_CONFIG }}
+        run: echo "$OBRAS_CONFIG" > config_obras.json
+
+      - name: Crear directorios necesarios
+        run: mkdir -p reportes temp_files logs
+
+      - name: Ejecutar control de tareo
+        env:
+          GITHUB_ACTIONS: 'true'
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.fecha }}" ]; then
+            ARGS="$ARGS --fecha ${{ github.event.inputs.fecha }}"
+          fi
+          if [ "${{ github.event.inputs.no_notificar }}" == "true" ]; then
+            ARGS="$ARGS --no-notificar"
+          fi
+          python main.py $ARGS
+
+      - name: Guardar reporte como artefacto
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-tareo-${{ github.run_number }}
+          path: |
+            reportes/
+            logs/
+          retention-days: 7

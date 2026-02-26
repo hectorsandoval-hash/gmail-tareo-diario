@@ -1,0 +1,40 @@
+# Credenciales y tokens (NUNCA subir)
+credentials.json
+token.json
+config_obras.json
+
+# Archivos temporales de Excel
+temp_files/
+*.xlsx
+*.xls
+*.xlsm
+
+# Reportes generados localmente
+reportes/
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Debug files
+debug_*.py
