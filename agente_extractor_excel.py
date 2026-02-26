@@ -2,7 +2,7 @@
 AGENTE 2: Extraccion de Datos de Excel (Tareo Diario)
 - Descarga adjuntos Excel de los correos de tareo
 - Lee la pestaña "RESUMEN"
-- Extrae: fecha del tareo, HERGONSA, SINDICATO, TOTAL obreros, STAFF
+- Extrae: fecha del tareo, personal empresa, SINDICATO, TOTAL obreros, STAFF
 
 Estructura real del Excel (pestaña RESUMEN):
   Fila 2: [B] titulo                          | [E] "Fecha:"
@@ -19,7 +19,7 @@ Estructura real del Excel (pestaña RESUMEN):
   ...
   Fila M: [B] "TOTAL"     | [C] total_sub1        | [D] total_sub2        | ...
 
-  Una de las secciones tiene "HERGONSA" como columna
+  Una de las secciones tiene la columna de la empresa (configurable)
   Una de las secciones puede tener "SINDICATO" como columna
 """
 import io
@@ -27,6 +27,8 @@ import re
 import base64
 from datetime import date, datetime
 from openpyxl import load_workbook
+
+from config import EXCEL_COMPANY_KEYWORDS
 
 
 def extraer_datos_tareo(gmail_service, mensaje_id, adjuntos, fecha_objetivo):
@@ -45,7 +47,7 @@ def extraer_datos_tareo(gmail_service, mensaje_id, adjuntos, fecha_objetivo):
     resultado = {
         "fecha_tareo": None,
         "fecha_correcta": False,
-        "personal_hergosa": 0,
+        "personal_empresa": 0,
         "personal_sindicato": 0,
         "total_obreros": 0,
         "personal_staff": 0,
@@ -89,7 +91,7 @@ def _procesar_excel_tareo(file_data, filename, fecha_objetivo):
     resultado = {
         "fecha_tareo": None,
         "fecha_correcta": False,
-        "personal_hergosa": 0,
+        "personal_empresa": 0,
         "personal_sindicato": 0,
         "total_obreros": 0,
         "personal_staff": 0,
@@ -165,7 +167,7 @@ def _procesar_excel_tareo(file_data, filename, fecha_objetivo):
                 break
 
         # ==================================================================
-        # 3. EXTRAER HERGONSA y SINDICATO de las secciones de subcontratistas
+        # 3. EXTRAER personal empresa y SINDICATO de las secciones de subcontratistas
         #    Buscar filas con "CATEGORIA" en col B, luego leer headers de columnas
         #    y encontrar el TOTAL correspondiente
         # ==================================================================
@@ -191,12 +193,12 @@ def _procesar_excel_tareo(file_data, filename, fecha_objetivo):
                             val = ws.cell(row=total_row, column=col_idx).value
                             total_val = int(val) if isinstance(val, (int, float)) and val > 0 else 0
 
-                            if "HERGONSA" in header_name or "HERGOSA" in header_name:
-                                # Sumar (puede haber HERGONSA y HERGONSA (SIND.))
+                            if any(kw in header_name for kw in EXCEL_COMPANY_KEYWORDS):
+                                # Sumar (puede haber variantes con "(SIND.)")
                                 if "SIND" in header_name:
                                     resultado["personal_sindicato"] += total_val
                                 else:
-                                    resultado["personal_hergosa"] += total_val
+                                    resultado["personal_empresa"] += total_val
 
                             elif header_name == "SINDICATO":
                                 resultado["personal_sindicato"] += total_val

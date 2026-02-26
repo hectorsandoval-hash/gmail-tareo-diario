@@ -11,7 +11,7 @@ import base64
 from email.mime.text import MIMEText
 from datetime import datetime, timezone, timedelta
 
-from config import OBRAS, NOTIFICACIONES_JSON, MODO_PRUEBA, TEST_EMAIL
+from config import OBRAS, NOTIFICACIONES_JSON, MODO_PRUEBA, TEST_EMAIL, COMPANY_NAME
 
 # Zona horaria Peru (UTC-5)
 PERU_TZ = timezone(timedelta(hours=-5))
@@ -165,7 +165,7 @@ Se solicita regularizar el envio a la brevedad posible, enviando el archivo al c
 Recordar que el tareo debe corresponder al mismo dia de envio.
 
 Saludos cordiales,
-Sistema Automatizado de Control y Gestión de Proyectos - HERGONSA
+Sistema Automatizado de Control y Gestión de Proyectos - {COMPANY_NAME}
 """
 
         try:
@@ -331,7 +331,7 @@ En relacion al Informe Diario de Personal de Obra (Tareo) correspondiente al dia
 {chr(10).join(observaciones)}
 
 Saludos cordiales,
-Sistema Automatizado de Control y Gestion de Proyectos - HERGONSA
+Sistema Automatizado de Control y Gestion de Proyectos - {COMPANY_NAME}
 """
 
         try:

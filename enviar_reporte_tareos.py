@@ -14,7 +14,7 @@ from email.mime.text import MIMEText
 from datetime import datetime, timezone, timedelta
 
 from auth_gmail import autenticar_gmail, obtener_perfil
-from config import REPORT_JSON, REPORTE_CC_EMAILS, MODO_PRUEBA, TEST_EMAIL
+from config import REPORT_JSON, REPORTE_CC_EMAILS, MODO_PRUEBA, TEST_EMAIL, COMPANY_NAME, COMPANY_COLUMN_LABEL
 
 # Zona horaria Peru (UTC-5)
 PERU_TZ = timezone(timedelta(hours=-5))
@@ -110,7 +110,7 @@ def generar_cuerpo_email(resultado_cumplimiento, resultado_notificaciones, inclu
     <th>Fecha Envio</th>
     <th>Fecha Tareo</th>
     <th>Tareo Correcto</th>
-    <th>HERGOSA</th>
+    <th>{COMPANY_COLUMN_LABEL}</th>
     <th>SINDICATO</th>
     <th>TOTAL Obreros</th>
     <th>STAFF</th>
@@ -131,7 +131,7 @@ def generar_cuerpo_email(resultado_cumplimiento, resultado_notificaciones, inclu
 
         fecha_tareo_str = datos.get("fecha_tareo") or "-"
         fecha_correcta = datos.get("fecha_correcta", False)
-        hergosa = datos.get("personal_hergosa", 0)
+        empresa = datos.get("personal_empresa", 0)
         sindicato = datos.get("personal_sindicato", 0)
         total_ob = datos.get("total_obreros", 0)
         staff = datos.get("personal_staff", 0)
@@ -164,7 +164,7 @@ def generar_cuerpo_email(resultado_cumplimiento, resultado_notificaciones, inclu
     <td>{tareo.get('fecha_envio', '-')}</td>
     <td>{fecha_tareo_str}</td>
     <td>{correcto_fmt}</td>
-    <td><strong>{hergosa}</strong></td>
+    <td><strong>{empresa}</strong></td>
     <td><strong>{sindicato}</strong></td>
     <td><strong>{total_ob}</strong></td>
     <td><strong>{staff}</strong></td>
@@ -180,7 +180,7 @@ def generar_cuerpo_email(resultado_cumplimiento, resultado_notificaciones, inclu
 
     # Fila de totales
     if todos_enviaron:
-        total_h = sum(item.get("datos", {}).get("personal_hergosa", 0) for item in todos_enviaron)
+        total_h = sum(item.get("datos", {}).get("personal_empresa", 0) for item in todos_enviaron)
         total_s = sum(item.get("datos", {}).get("personal_sindicato", 0) for item in todos_enviaron)
         total_o = sum(item.get("datos", {}).get("total_obreros", 0) for item in todos_enviaron)
         total_st = sum(item.get("datos", {}).get("personal_staff", 0) for item in todos_enviaron)
@@ -251,7 +251,7 @@ def generar_cuerpo_email(resultado_cumplimiento, resultado_notificaciones, inclu
     html += f"""</table>
 
 <div class="footer">
-  Reporte generado automaticamente por Sistema Automatizado de Control y Gestión de Proyectos - HERGONSA<br>
+  Reporte generado automaticamente por Sistema Automatizado de Control y Gestión de Proyectos - {COMPANY_NAME}<br>
   Fecha: {datetime.now(PERU_TZ).strftime('%d/%m/%Y %H:%M')}<br>
   <em>Nota: "Tareo Correcto" indica si la fecha del tareo coincide con la fecha esperada ({fecha}). Las obras deben enviar el tareo del mismo dia, no del dia anterior.</em>
 </div>

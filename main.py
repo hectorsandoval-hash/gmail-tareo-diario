@@ -24,7 +24,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 
-from config import REPORT_DIR, REPORT_JSON, REPORT_TXT, OBRAS, MODO_PRUEBA, TEST_EMAIL
+from config import REPORT_DIR, REPORT_JSON, REPORT_TXT, OBRAS, MODO_PRUEBA, TEST_EMAIL, COMPANY_COLUMN_LABEL
 from auth_gmail import autenticar_gmail, autenticar_drive, obtener_perfil
 from agente_busqueda_tareos import buscar_tareos
 from agente_extractor_excel import extraer_datos_tareo
@@ -151,7 +151,7 @@ def main():
                 console.print(
                     f"[green]OK[/green] "
                     f"(Fecha: {datos.get('fecha_tareo', '-')}, "
-                    f"H:{datos.get('personal_hergosa', 0)}, "
+                    f"H:{datos.get('personal_empresa', 0)}, "
                     f"S:{datos.get('personal_sindicato', 0)}, "
                     f"T:{datos.get('total_obreros', 0)}, "
                     f"Staff:{datos.get('personal_staff', 0)})"
@@ -265,7 +265,7 @@ def _mostrar_tabla_cumplimiento(resultado):
     table.add_column("Obra", style="bold white", max_width=20)
     table.add_column("Estado", width=18)
     table.add_column("Fecha Tareo", width=12)
-    table.add_column("HERGOSA", style="white", width=10)
+    table.add_column(COMPANY_COLUMN_LABEL or "EMPRESA", style="white", width=10)
     table.add_column("SINDICATO", style="white", width=10)
     table.add_column("TOTAL Ob.", style="white", width=10)
     table.add_column("STAFF", style="white", width=8)
@@ -284,7 +284,7 @@ def _mostrar_tabla_cumplimiento(resultado):
             item["obra_nombre"],
             f"[green]{item['estado']}[/green]",
             datos.get("fecha_tareo", "-"),
-            str(datos.get("personal_hergosa", 0)),
+            str(datos.get("personal_empresa", 0)),
             str(datos.get("personal_sindicato", 0)),
             str(datos.get("total_obreros", 0)),
             str(datos.get("personal_staff", 0)),
@@ -302,7 +302,7 @@ def _mostrar_tabla_cumplimiento(resultado):
             item["obra_nombre"],
             f"[yellow]{item['estado']}[/yellow]",
             datos.get("fecha_tareo", "-"),
-            str(datos.get("personal_hergosa", 0)),
+            str(datos.get("personal_empresa", 0)),
             str(datos.get("personal_sindicato", 0)),
             str(datos.get("total_obreros", 0)),
             str(datos.get("personal_staff", 0)),
@@ -373,7 +373,7 @@ def _guardar_reporte_completo(resultado_cumplimiento, resultado_notificaciones, 
             datos = item.get("datos", {})
             f.write(f"  {item['obra_nombre']} - {item['estado']}\n")
             f.write(f"    Fecha tareo: {datos.get('fecha_tareo', '-')}\n")
-            f.write(f"    HERGOSA: {datos.get('personal_hergosa', 0)}\n")
+            f.write(f"    {COMPANY_COLUMN_LABEL or 'EMPRESA'}: {datos.get('personal_empresa', 0)}\n")
             f.write(f"    SINDICATO: {datos.get('personal_sindicato', 0)}\n")
             f.write(f"    TOTAL Obreros: {datos.get('total_obreros', 0)}\n")
             f.write(f"    STAFF: {datos.get('personal_staff', 0)}\n\n")

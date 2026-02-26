@@ -74,6 +74,13 @@ TEST_EMAIL = _config["test_email"]
 REPORTE_CC_EMAILS = _config["reporte_cc_emails"]
 OBRAS = _config["obras"]
 
+# Nombre de la empresa (para firmas de correo y reportes)
+COMPANY_NAME = _config.get("company_name", "")
+# Label de columna en el reporte HTML
+COMPANY_COLUMN_LABEL = _config.get("company_column_label", "")
+# Keywords para identificar columnas de la empresa en el Excel
+EXCEL_COMPANY_KEYWORDS = _config.get("excel_company_keywords", [])
+
 # ============================================================================
 # ABREVIATURAS DE MESES EN ESPAÑOL (para carpetas de Google Drive)
 # ============================================================================
